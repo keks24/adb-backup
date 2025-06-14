@@ -182,6 +182,8 @@ $ LS_COLORS="" tree -FC "./2025-06-14T19-36-29+0200_backup/"
 [...]
 ```
 
+Once the `images files` are being `compressed`, the `Android device` can be disconnected.
+
 # Verifying archive and file integrity
 The following commands can be used to `verify` the `archive` and `file` integrity:
 ```bash
