@@ -8,6 +8,7 @@
 
 * The following packages are installed:
 ```no-highlight
+bash-4.4 or higher
 chmod
 mkdir
 touch
