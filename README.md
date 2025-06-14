@@ -51,7 +51,7 @@ device_name="device:<some_device_name>"
 
 Replace the values `<some_device_id>`, `<some_model_name>` and `<some_device_name>` with the information of the `desired Android device`, which should be backed up.
 
-The `Extended Regular Expression` for the variable `partition_regex` needs to be `adapted manually` as well. For this, the partition structure in the file `/proc/partitions` and in the directory `/dev/block/` needs to be analysed:
+The `Extended Regular Expression` for the variable `partition_regex` needs to be `adapted manually` as well. For this, the partition structure in the file `/proc/partitions` and in the directory `/dev/block/by-name/` needs to be analysed:
 ```bash
 $ adb -s <some_device_id> shell "head -n 24 '/proc/partitions' | grep -v 'ram'"
 major minor  #blocks  name
@@ -63,7 +63,7 @@ major minor  #blocks  name
    8        4       1024 sda4
    8        5        512 sda5
 [...]
-$ adb -s <some_device_id> shell "ls -l '/dev/block/'"
+$ adb -s <some_device_id> shell "ls -l '/dev/block/by-name/'"
 total 0
 lrwxrwxrwx 1 root root 15 1971-12-06 06:12 ALIGN_TO_128K_1 -> /dev/block/sdd1
 lrwxrwxrwx 1 root root 15 1971-12-06 06:12 ALIGN_TO_128K_2 -> /dev/block/sdf1
