@@ -101,6 +101,12 @@ Another example with multiple `SD cards`:
 partition_regex="mmcblk[0-2]p[1-9][0-9]{0,2}"
 ```
 
+This will match `all block device files` from:
+* `/dev/block/mmcblk0p1` to `/dev/block/mmcblk0p999`
+* `/dev/block/mmcblk0p2` to `/dev/block/mmcblk0p999`
+* `/dev/block/mmcblk1p2` to `/dev/block/mmcblk1p999` and so on until
+* `/dev/block/mmcblk2p1` to `/dev/block/mmcblk2p999`
+
 The online tool [`RegExr`](https://regexr.com/) can be used for debugging.
 
 # Further configuration
