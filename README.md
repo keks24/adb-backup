@@ -8,16 +8,16 @@
 
 * The following packages are installed:
 ```no-highlight
-bash-4.4 or higher
-chmod
-mkdir
-touch
 adb
 b2sum
+bash-4.4 or higher
+chmod
 gawk
 id
+mkdir
 pixz
 tee
+touch
 xz
 ```
 
