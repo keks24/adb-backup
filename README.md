@@ -110,7 +110,20 @@ This will match `all block device files` from:
 The online tool [`RegExr`](https://regexr.com/) can be used for debugging.
 
 # Further configuration
-The array `system_information_array` can be adapted, in order to backup more files.
+The array `system_information_array` can be adapted, in order to backup more files:
+```bash
+system_information_array=(\
+                            "/etc/blkid.tab" \
+                            "/etc/fstab" \
+                            "/etc/recovery.fstab" \
+                            "/proc/cmdline" \
+                            "/proc/config.gz" \
+                            "/proc/cpuinfo" \
+                            "/proc/devices" \
+                            "/proc/meminfo" \
+                            "/proc/partitions" \
+                         )
+```
 
 # Execution
 Once everything is configured properly, the `Bash` script `adb_backup.sh` can now be executed:
