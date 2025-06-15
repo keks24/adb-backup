@@ -208,8 +208,8 @@ Once the `images files` are being `compressed`, the `Android device` can be disc
 # Verifying archive and file integrity
 The following commands can be used to `verify` the `archive` and `file` integrity:
 ```bash
-$ xz --test --verbose "./2025-06-14T19-36-29+0200_backup/"sd*.xz
-$ b2sum --check "./2025-06-14T19-36-29+0200_backup/"*.b2
+$ xz --test --verbose "./YYYY-MM-DDTHH-MM-SS+Z_backup/"sd*.xz
+$ b2sum --check "./YYYY-MM-DDTHH-MM-SS+Z_backup/"*.b2
 ```
 
 # Parameters
