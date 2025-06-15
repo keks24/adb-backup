@@ -203,7 +203,7 @@ executeArchiveCommand()
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
-executeArchiveCheckCommand()
+executeArchiveVerifyCommand()
 {
     declare -a compressed_file_array
     compressed_file_array=("${@}")
@@ -387,7 +387,7 @@ verifyArchiveIntegrity()
     done <<< "${partition_name_list}"
 
     outputCurrentStep "Checking archive integrity of: '${compressed_image_file_array[@]}'..."
-    executeArchiveCheckCommand "${compressed_image_file_array[@]}"
+    executeArchiveVerifyCommand "${compressed_image_file_array[@]}"
     outputNewline
 }
 
