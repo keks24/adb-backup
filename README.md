@@ -82,6 +82,7 @@ major minor  #blocks  name
    8        4       1024 sda4
    8        5        512 sda5
 [...]
+   8       86       8192 sdf6
 $ adb -s <some_device_id> shell "ls -l '/dev/block/by-name/'"
 total 0
 lrwxrwxrwx 1 root root 15 1971-12-06 06:12 ALIGN_TO_128K_1 -> /dev/block/sdd1
@@ -95,9 +96,10 @@ In this case the desired `block device files`, which contain the `partition info
 ```no-highlight
 /dev/block/sda1
 /dev/block/sda2
+[...]
 /dev/block/sdb1
 [...]
-/dev/block/sdf1
+/dev/block/sdf6
 [...]
 ```
 
@@ -126,7 +128,7 @@ This will match `all block device files` from:
 * `/dev/block/mmcblk1p2` to `/dev/block/mmcblk1p999` and so on until
 * `/dev/block/mmcblk2p1` to `/dev/block/mmcblk2p999`
 
-The online tool [`RegExr`](https://regexr.com/) can be used for debugging.
+The online tool [`RegExr`](https://regexr.com/) can be used to set up a well-formed `Extended Regular Expression` and for debugging
 
 # Further configuration
 The array `system_information_array` can be adapted, in order to backup more files:
