@@ -138,21 +138,25 @@ writeLogFile()
         "log")
             if [[ -O "${log_file}" && -r "${log_file}" && -w "${log_file}" ]]
             then
+                # redirect to "log file" and to "stdout"
                 /usr/bin/tee --append "${log_file}" >&1
             else
                 outputWarningError "The log file: '${log_file}' is either not owned by effective user '${effective_username}', has no 'read' or 'write' permissions." "error"
                 kill -s "SIGTERM" "${SCRIPT_PID}"
             fi
             ;;
+
         "error")
             if [[ -O "${log_file}" && -r "${log_file}" && -w "${log_file}" ]]
             then
+                # redirect to "error log file" and to "stderr"
                 /usr/bin/tee --append "${error_log_file}" >&2
             else
                 outputWarningError "The error log file: '${log_file}' is either not owned by effective user '${effective_username}', has no 'read' or 'write' permissions." "error"
                 kill -s "SIGTERM" "${SCRIPT_PID}"
             fi
             ;;
+
         *)
             outputWarningError "${function_name}: Wrong parameter: Must be either 'log' or 'error'." "error"
             kill -s "SIGTERM" "${SCRIPT_PID}"
