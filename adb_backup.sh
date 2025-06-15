@@ -29,7 +29,7 @@ script_name="${0##*/}"
 export SCRIPT_PID="${$}"
 configuration_name="${script_name/\.sh/.conf}"
 configuration_file="${script_directory_path}/${configuration_name}"
-source "${script_directory_path}/${script_name/\.sh/.conf}"
+source "${configuration_file}"
 
 # secure access permissions
 ## created files: 600
@@ -267,8 +267,6 @@ deviceFileDirectoryExists()
 
 checkDeviceConnection()
 {
-    local device_information
-
     if ! /usr/bin/gawk \
             --assign="adb_device_id=${adb_device_id}" \
             --assign="transport_protocol=${transport_protocol}" \
