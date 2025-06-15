@@ -11,7 +11,6 @@
 adb
 b2sum
 bash-4.4 or higher
-chmod
 gawk
 id
 mkdir
