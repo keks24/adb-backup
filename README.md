@@ -31,6 +31,20 @@ List of devices attached
 <some_device_id>               recovery usb:<some_bus_number>-<some_port_number> product:<some_product_name> model:<some_model_name> device:<some_device_name> transport_id:<some_id>
 ```
 
+* The `device partition table` at `/proc/partitions` is readable via `ADB`:
+```bash
+$ adb -s <some_device_id> shell "head -n 24 '/proc/partitions'"
+major minor  #blocks  name
+
+   8        0  243539968 sda
+   8        1          8 sda1
+   8        2       8192 sda2
+   8        3      32768 sda3
+   8        4       1024 sda4
+   8        5        512 sda5
+[...]
+```
+
 # Installation
 `Clone` the repository into a directory, where the backup should be saved:
 ```bash
