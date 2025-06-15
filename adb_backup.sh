@@ -59,7 +59,6 @@ createLogFiles()
     for file in "${file_array[@]}"
     do
         /bin/touch "${file}"
-        /bin/chmod 600 "${file}"
     done
 }
 
@@ -67,7 +66,6 @@ createLogFiles
 
 declare -a command_array
 command_array=(\
-                "/bin/chmod" \
                 "/bin/mkdir" \
                 "/bin/touch" \
                 "/usr/bin/adb" \
