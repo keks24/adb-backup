@@ -26,7 +26,7 @@ trap "exit 1" SIGTERM
 script_directory_path="${0%/*}"
 script_name="${0##*/}"
 # make script pid available for subshells
-export script_pid="${$}"
+export SCRIPT_PID="${$}"
 configuration_name="${script_name/\.sh/.conf}"
 configuration_file="${script_directory_path}/${configuration_name}"
 source "${script_directory_path}/${script_name/\.sh/.conf}"
@@ -90,7 +90,7 @@ checkCommands()
             if ! command -v "${current_command}" >/dev/null
             then
                 echo -e "\e[01;31mCould not find command '${current_command}'.\e[0m" >&2
-                kill -s "SIGTERM" "${script_pid}"
+                kill -s "SIGTERM" "${SCRIPT_PID}"
             fi
         done
     # needs to be done manually, because of dependency conflicts.
@@ -138,7 +138,7 @@ writeLogFile()
                 /usr/bin/tee --append "${log_file}" >&1
             else
                 outputWarningError "The log file: '${log_file}' is either not owned by effective user '${effective_username}', has no 'read' or 'write' permissions." "error"
-                kill -s "SIGTERM" "${script_pid}"
+                kill -s "SIGTERM" "${SCRIPT_PID}"
             fi
             ;;
         "error")
@@ -147,12 +147,12 @@ writeLogFile()
                 /usr/bin/tee --append "${error_log_file}" >&2
             else
                 outputWarningError "The error log file: '${log_file}' is either not owned by effective user '${effective_username}', has no 'read' or 'write' permissions." "error"
-                kill -s "SIGTERM" "${script_pid}"
+                kill -s "SIGTERM" "${SCRIPT_PID}"
             fi
             ;;
         *)
             outputWarningError "${function_name}: Wrong parameter: Must be either 'log' or 'error'." "error"
-            kill -s "SIGTERM" "${script_pid}"
+            kill -s "SIGTERM" "${SCRIPT_PID}"
     esac
 }
 
@@ -187,7 +187,7 @@ getPartitionList()
         echo "${partition_name_list}"
     else
         outputWarningError "Could not find file: '${partition_file}'" "error"
-        kill -s "SIGTERM" "${script_pid}"
+        kill -s "SIGTERM" "${SCRIPT_PID}"
     fi
 }
 
@@ -287,7 +287,7 @@ checkDeviceConnection()
         outputWarningError "${adb_command_output}"
         outputWarningError "" "error"
         outputWarningError "\e[01;33mMake sure to reboot the device to 'recovery mode', in order to create a clean backup of all partitions: \"/usr/bin/adb reboot recovery\"\e[0m" "warning"
-        kill -s "SIGTERM" "${script_pid}"
+        kill -s "SIGTERM" "${SCRIPT_PID}"
     fi
 }
 
@@ -305,12 +305,12 @@ saveSystemInformation()
                 executeAdbCommand "${adb_device_id}" "pull" "${device_file}" "${backup_directory}/${device_file}"
             else
                 outputWarningError "Could not find file on device: '${device_file}'." "error"
-                kill -s "SIGTERM" "${script_pid}"
+                kill -s "SIGTERM" "${SCRIPT_PID}"
             fi
         done
     else
         outputWarningError "Saving the file: '/proc/partitions' is mandatory!" "error"
-        kill -s "SIGTERM" "${script_pid}"
+        kill -s "SIGTERM" "${SCRIPT_PID}"
     fi
 
     outputCurrentStep "Saving partition labels: from '${partition_label_directory}' to '${partition_label_file}'..."
@@ -319,7 +319,7 @@ saveSystemInformation()
         executeAdbCommand "${adb_device_id}" "shell" "ls -l '${partition_label_directory}'" > "${partition_label_file}"
     else
         outputWarningError "Couldn not find directory on device: '${partition_label_directory}'." "error"
-        kill -s "SIGTERM" "${script_pid}"
+        kill -s "SIGTERM" "${SCRIPT_PID}"
     fi
     outputNewline
 }
