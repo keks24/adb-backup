@@ -465,7 +465,6 @@ verifyArchiveChecksums()
 
     outputCurrentStep "Checking archive checksum of: '${checksum_file_array[@]}'..."
     executeChecksumVerifyCommand "${checksum_file_array[@]}"
-    outputNewline
 }
 
 main()
