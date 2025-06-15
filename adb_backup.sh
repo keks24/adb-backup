@@ -230,6 +230,28 @@ executeArchiveVerifyCommand()
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
+executeChecksumVerifyCommand()
+{
+    declare -a checksum_file_array
+    checksum_file_array=("${@}")
+    local checksum_file
+
+    {
+        {
+            # convert array to null-terminated string
+            for checksum_file in "${checksum_file_array[@]}"
+            do
+                printf "%s\0" "${checksum_file}"
+            done
+        } | /usr/bin/xargs \
+                --null \
+                --no-run-if-empty \
+                --max-procs="${available_processors}" \
+                --max-args="${xargs_max_args}" \
+                /usr/bin/b2sum --check
+    } > >(writeLogFile "log") 2> >(writeLogFile "error")
+}
+
 executeChecksumCommand()
 {
     local compressed_file="${1}"
@@ -417,7 +439,27 @@ generateChecksums()
         executeChecksumCommand "${compressed_image_file}" "${checksum_file}"
     done <<< "${partition_name_list}"
 
-    #outputNewline
+    outputNewline
+}
+
+verifyArchiveChecksums()
+{
+    local partition_name_list=$(getPartitionList)
+    local partition_name
+    local image_file
+    local compressed_image_file
+    declare -a checksum_file_array
+
+    while read -r partition_name
+    do
+        image_file="${backup_directory}/${partition_name}.img"
+        compressed_image_file="${image_file}.xz"
+        checksum_file_array+=("${compressed_image_file}.b2")
+    done <<< "${partition_name_list}"
+
+    outputCurrentStep "Checking archive checksum of: '${checksum_file_array[@]}'..."
+    executeChecksumVerifyCommand "${checksum_file_array[@]}"
+    outputNewline
 }
 
 main()
@@ -434,8 +476,7 @@ main()
 
     generateChecksums
 
-    # TODO: add function "verifyArchiveChecksums"
-    #verifyArchiveChecksums
+    verifyArchiveChecksums
 }
 
 main
