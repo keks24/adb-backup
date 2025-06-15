@@ -146,7 +146,7 @@ system_information_array=(\
                          )
 ```
 
-# Execution
+# Creating backups
 Once everything is configured properly, the `Bash` script `adb_backup.sh` can now be executed:
 ```bash
 $ adb_backup.sh
