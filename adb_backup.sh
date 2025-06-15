@@ -164,7 +164,9 @@ writeLogFile()
 
 outputNewline()
 {
-    echo "${log_date_time_format@P}:" | /usr/bin/tee --append "${log_file}"
+    {
+        echo "${date_time_format@P}:"
+    } > >(writeLogFile "log")
 }
 
 outputCurrentStep()
