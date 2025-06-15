@@ -181,13 +181,14 @@ outputCurrentStep()
 getPartitionList()
 {
     local partition_file="${backup_directory}/${partition_table_file}"
+    local partition_table
+    local partition_name_list
 
     if [[ -f "${partition_file}" ]]
     then
-        # get partition information
-        local partition_table=$(< "${partition_file}")
+        # get partition information from file
+        partition_table=$(< "${partition_file}")
         # filter list of partition names
-        ## make it globally available
         partition_name_list=$(/usr/bin/gawk \
                                 --assign="partition_regex=${partition_regex}" \
                                 '$0 ~ partition_regex { print $4 }' <<< "${partition_table}")
@@ -344,12 +345,14 @@ savePartitionsAsImages()
 {
     local partition_name_list=$(getPartitionList)
     local partition_name
+    local device_partition_file
+    local image_file
 
     # save partitions as image files
     while read -r partition_name
     do
-        local device_partition_file="${block_device_directory}/${partition_name}"
-        local image_file="${backup_directory}/${partition_name}.img"
+        device_partition_file="${block_device_directory}/${partition_name}"
+        image_file="${backup_directory}/${partition_name}.img"
 
         outputCurrentStep "Saving block device: '${device_partition_file}' to '${image_file}'..."
         # "adb pull" is much faster than "adb shell 'cat [...]'"
@@ -363,11 +366,13 @@ archiveImages()
 {
     local partition_name_list=$(getPartitionList)
     local partition_name
+    local image_file
+    local compressed_image_file
 
     while read -r partition_name
     do
-        local image_file="${backup_directory}/${partition_name}.img"
-        local compressed_image_file="${image_file}.xz"
+        image_file="${backup_directory}/${partition_name}.img"
+        compressed_image_file="${image_file}.xz"
 
         outputCurrentStep "Compressing file: '${image_file}' to '${compressed_image_file}'..."
         executeArchiveCommand "${image_file}"
@@ -381,10 +386,11 @@ verifyArchiveIntegrity()
     local partition_name_list=$(getPartitionList)
     local partition_name
     declare -a compressed_image_file_array
+    local image_file
 
     while read -r partition_name
     do
-        local image_file="${backup_directory}/${partition_name}.img"
+        image_file="${backup_directory}/${partition_name}.img"
         compressed_image_file_array+=("${image_file}.xz")
     done <<< "${partition_name_list}"
 
