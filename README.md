@@ -33,7 +33,7 @@ List of devices attached
 
 * The `device partition table` at `/proc/partitions` is readable via `ADB`:
 ```bash
-$ adb -s <some_device_id> shell "head -n 24 '/proc/partitions'"
+$ adb -s <some_device_id> shell "head -n 24 '/proc/partitions' | grep -v 'ram'"
 major minor  #blocks  name
 
    8        0  243539968 sda
