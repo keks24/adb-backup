@@ -58,7 +58,7 @@ Make sure, that the `Android device` is `rebooted` in `recovery mode`.
 
 Adapt the following entries in the configuration file `adb_backup.conf`:
 ```no-highlight
-partition_regex="sd[a-f][1-9][0-9]{0,2}"
+partition_regex="(sd[a-z]{1,2}|mmcblk[0-9][0-9]{0,2}p|md)[1-9][0-9]{0,2}"
 adb_device_id="<some_device_id>"
 model_name="model:<some_model_name>"
 device_name="device:<some_device_name>"
@@ -69,9 +69,27 @@ Replace the following values with the information of the `desired Android device
 * `<some_model_name>`
 * `<some_device_name>`
 
-The `Extended Regular Expression` for the variable `partition_regex` needs to be `adapted manually` as well.
+The `Extended Regular Expression` for the variable `partition_regex` may need to be `adapted manually` as well. Currently, it is set to match the following `block device files`:
+* `scsi disks`
+    * `/dev/block/sda1` to `/dev/block/sda999`
+    * `/dev/block/sdb1` to `/dev/block/sdb999`
+    * `/dev/block/sdz1` to `/dev/block/sdz999`
+    * `/dev/block/sdaa1` to `/dev/block/sdaa999` and so on until
+    * `/dev/block/sdzz1` to `/dev/block/sdzz999`
+* `SD cards`
+    * `/dev/block/mmcblk0p1` to `/dev/block/mmcblk0p999`
+    * `/dev/block/mmcblk0p2` to `/dev/block/mmcblk0p999`
+    * `/dev/block/mmcblk1p2` to `/dev/block/mmcblk1p999` and so on until
+    * `/dev/block/mmcblk999p1` to `/dev/block/mmcblk999p999`
+* `RAID`
+    * `/dev/block/md1` to `/dev/block/md999`
 
-For this, the `partition structure` in the file `/proc/partitions` and in the directory `/dev/block/by-name/` needs to be analysed:
+Matching `block device files` until `999` should make the script dynamic enough for future updates.
+
+## Adapting the Extended Regular Expression
+One can use the online tool [`RegExr`](https://regexr.com/) for debugging, if the `Extended Regular Expression` needs to be adapted.
+
+In order to adapt it, the `device partition structure` in the file `/proc/partitions` and in the directory `/dev/block/by-name/` needs to be analysed:
 ```bash
 $ adb -s <some_device_id> shell "head -n 24 '/proc/partitions' | grep -v 'ram'"
 major minor  #blocks  name
@@ -93,7 +111,7 @@ lrwxrwxrwx 1 root root 16 1971-12-06 06:12 android_log -> /dev/block/sde79
 [...]
 ```
 
-In this case the desired `block device files`, which contain the `partition information`, are:
+In this case, the desired `block device files`, which contain the `partition information`, are:
 ```no-highlight
 /dev/block/sda1
 /dev/block/sda2
@@ -114,22 +132,6 @@ This will match `all block device files` from:
 * `/dev/block/sda1` to `/dev/block/sda999`
 * `/dev/block/sdb1` to `/dev/block/sdb999` and so on until
 * `/dev/block/sdf1` to `/dev/block/sdf999`
-
-Matching files until `999`, makes the script dynamic for future updates.
-
-Another example with multiple `SD cards`:
-```bash
-## partitions: mmcblk{0..2}{1..999}
-partition_regex="mmcblk[0-2]p[1-9][0-9]{0,2}"
-```
-
-This will match `all block device files` from:
-* `/dev/block/mmcblk0p1` to `/dev/block/mmcblk0p999`
-* `/dev/block/mmcblk0p2` to `/dev/block/mmcblk0p999`
-* `/dev/block/mmcblk1p2` to `/dev/block/mmcblk1p999` and so on until
-* `/dev/block/mmcblk2p1` to `/dev/block/mmcblk2p999`
-
-The online tool [`RegExr`](https://regexr.com/) can be used to set up a well-formed `Extended Regular Expression` and for debugging
 
 # Further configuration
 The array `system_information_array` can be adapted, in order to backup more files:
@@ -174,7 +176,7 @@ This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DD
 2025-06-14T19-36-30+0200: <some_device_id>: Saving file: '/proc/partitions' to './2025-06-14T19-36-29+0200_backup//proc/partitions'...
 /proc/partitions: 1 file pulled, 0 skipped. 1.0 MB/s (4311 bytes in 0.004s)
 2025-06-14T19-36-30+0200: <some_device_id>: Saving partition labels: from '/dev/block/by-name/' to './2025-06-14T19-36-29+0200_backup//dev/block/partition_labels.list'...
-:
+2025-06-14T19-36-30+0200:
 2025-06-14T19-36-30+0200: <some_device_id>: Saving block device: '/dev/block/sda1' to './2025-06-14T19-36-29+0200_backup/sda1.img'...
 [...]
 2025-06-14T21-28-14+0200: <some_device_id>: Compressing file: './2025-06-14T19-36-29+0200_backup/sda1.img' to './2025-06-14T19-36-29+0200_backup/sda1.img.xz'...
@@ -209,8 +211,8 @@ Once the `images files` are being `compressed`, the `Android device` can be disc
 # Verifying archive and file integrity
 The following commands can be used to `verify` the `archive` and `file` integrity:
 ```bash
-$ xz --test --verbose "./YYYY-MM-DDTHH-MM-SS+Z_backup/"sd*.xz
-$ b2sum --check "./YYYY-MM-DDTHH-MM-SS+Z_backup/"*.b2
+$ xz --test --verbose "./2025-06-14T23-37-41+0200/"sd*.xz
+$ b2sum --check "./2025-06-14T23-37-41+0200/"*.b2
 ```
 
 # Parameters
