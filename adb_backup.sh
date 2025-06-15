@@ -478,10 +478,12 @@ main()
 
     archiveImages
 
+    # necessary, if the backup is transferred via the network
     verifyArchiveIntegrity
 
     generateChecksums
 
+    # necessary, if the backup is transferred via the network
     verifyArchiveChecksums
 }
 
