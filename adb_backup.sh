@@ -113,16 +113,22 @@ outputWarningError()
 
     case "${message_type}" in
         "warning")
-            echo -e "${date_time_format@P}: \e[01;33m${adb_device_id}: ${message}\e[0m" | /usr/bin/tee --append "${error_log_file}" >&2
+            {
+                echo -e "${date_time_format@P}: \e[01;33m${adb_device_id}: ${message}\e[0m"
+            } > >(writeLogFile "error")
             ;;
 
         "error")
-            echo -e "${date_time_format@P}: \e[01;31m${adb_device_id}: ${message}\e[0m" | /usr/bin/tee --append "${error_log_file}" >&2
+            {
+                echo -e "${date_time_format@P}: \e[01;31m${adb_device_id}: ${message}\e[0m"
+            } > >(writeLogFile "error")
             ;;
 
         *)
-            # no coloured output
-            echo -e "${date_time_format@P}: ${adb_device_id}: ${message}" | /usr/bin/tee --append "${error_log_file}" >&2
+            {
+                # no coloured output
+                echo -e "${date_time_format@P}: ${adb_device_id}: ${message}"
+            } > >(writeLogFile "error")
             ;;
     esac
 }
