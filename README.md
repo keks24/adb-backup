@@ -63,9 +63,14 @@ model_name="model:<some_model_name>"
 device_name="device:<some_device_name>"
 ```
 
-Replace the values `<some_device_id>`, `<some_model_name>` and `<some_device_name>` with the information of the `desired Android device`, which should be backed up.
+Replace the following values with the information of the `desired Android device`, from which the backup should be taken from:
+* `<some_device_id>`
+* `<some_model_name>`
+* `<some_device_name>`
 
-The `Extended Regular Expression` for the variable `partition_regex` needs to be `adapted manually` as well. For this, the partition structure in the file `/proc/partitions` and in the directory `/dev/block/by-name/` needs to be analysed:
+The `Extended Regular Expression` for the variable `partition_regex` needs to be `adapted manually` as well.
+
+For this, the `partition structure` in the file `/proc/partitions` and in the directory `/dev/block/by-name/` needs to be analysed:
 ```bash
 $ adb -s <some_device_id> shell "head -n 24 '/proc/partitions' | grep -v 'ram'"
 major minor  #blocks  name
