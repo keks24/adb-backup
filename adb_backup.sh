@@ -105,7 +105,7 @@ checkCommands
 ## "checkCommands" must be executed before this!
 effective_username=$(/usr/bin/id --user --name)
 adb_command_output=$(/usr/bin/adb devices -l)
-available_processors=$(/usr/bin/nproc --all)
+available_processors=$(/usr/bin/nproc --all --ignore="${ignore_processor_count}")
 
 # global functions
 outputWarningError()
