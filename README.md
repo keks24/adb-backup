@@ -15,9 +15,11 @@ chmod
 gawk
 id
 mkdir
+nproc
 pixz
 tee
 touch
+xargs
 xz
 ```
 
