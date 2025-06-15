@@ -408,6 +408,9 @@ main()
     verifyArchiveIntegrity
 
     generateChecksums
+
+    # TODO: add function "verifyArchiveChecksums"
+    #verifyArchiveChecksums
 }
 
 main
