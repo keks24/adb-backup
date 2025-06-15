@@ -403,12 +403,15 @@ generateChecksums()
 {
     local partition_name_list=$(getPartitionList)
     local partition_name
+    local image_file
+    local compressed_image_file
+    local checksum_file
 
     while read -r partition_name
     do
-        local image_file="${backup_directory}/${partition_name}.img"
-        local compressed_image_file="${image_file}.xz"
-        local checksum_file="${compressed_image_file}.b2"
+        image_file="${backup_directory}/${partition_name}.img"
+        compressed_image_file="${image_file}.xz"
+        checksum_file="${compressed_image_file}.b2"
 
         outputCurrentStep "Generating BLAKE2 checksum file: '${checksum_file}' of '${image_file}'...\e[0m"
         executeChecksumCommand "${compressed_image_file}" "${checksum_file}"
