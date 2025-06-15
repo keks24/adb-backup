@@ -74,8 +74,10 @@ command_array=(\
                 "/usr/bin/b2sum" \
                 "/usr/bin/gawk" \
                 "/usr/bin/id" \
+                "/usr/bin/nproc" \
                 "/usr/bin/pixz" \
                 "/usr/bin/tee" \
+                "/usr/bin/xargs" \
                 "/usr/bin/xz" \
               )
 checkCommands()
@@ -103,6 +105,7 @@ checkCommands
 ## "checkCommands" must be executed before this!
 effective_username=$(/usr/bin/id --user --name)
 adb_command_output=$(/usr/bin/adb devices -l)
+available_processors=$(/usr/bin/nproc --all)
 
 # global functions
 outputWarningError()
@@ -204,10 +207,21 @@ executeArchiveCheckCommand()
 {
     declare -a compressed_file_array
     compressed_file_array=("${@}")
+    local compressed_file
 
     {
-        # TODO: parallelise this with "xargs"
-        /usr/bin/xz --test "${compressed_file_array[@]}"
+        {
+            # convert array to null-terminated string
+            for compressed_file in "${compressed_file_array[@]}"
+            do
+                printf "%s\0" "${compressed_file}"
+            done
+        } | /usr/bin/xargs \
+                --null \
+                --no-run-if-empty \
+                --max-procs="${available_processors}" \
+                --max-args="${xargs_max_args}" \
+                /usr/bin/xz --test
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
