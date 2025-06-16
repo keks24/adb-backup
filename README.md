@@ -54,8 +54,6 @@ $ git clone "https://codeberg.org/keks24/adb-backup.git"
 
 # Usage
 # Configuration
-Make sure, that the `Android device` is `rebooted` in `recovery mode`.
-
 Adapt the following entries in the configuration file `adb_backup.conf`:
 ```no-highlight
 partition_regex="(sd[a-z]{1,2}|mmcblk[0-9][0-9]{0,2}p|md)[1-9][0-9]{0,2}"
