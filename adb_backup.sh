@@ -172,7 +172,7 @@ outputNewline()
 {
     {
         echo "${date_time_format@P}:"
-    } > >(writeLogFile "log")
+    } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
 outputCurrentStep()
