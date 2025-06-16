@@ -87,7 +87,7 @@ Matching `block device files` until `999` should make the script dynamic enough 
 ## Adapting the Extended Regular Expression
 One can use the online tool [`RegExr`](https://regexr.com/) for debugging, if the `Extended Regular Expression` needs to be adapted.
 
-In order to adapt it, the `device partition structure` in the file `/proc/partitions` and in the directory `/dev/block/by-name/` needs to be analysed:
+In order to do so, the `device partition structure` in the file `/proc/partitions` and in the directory `/dev/block/by-name/` needs to be analysed:
 ```bash
 $ adb -s <some_device_id> shell "head -n 24 '/proc/partitions' | grep -v 'ram'"
 major minor  #blocks  name
