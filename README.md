@@ -70,7 +70,7 @@ Replace the following values with the information of the `desired Android device
 The `Extended Regular Expression` for the variable `partition_regex` may need to be `adapted manually` as well. Currently, it is set to match the following `block device files`:
 * `scsi disks`
     * `/dev/block/sda1` to `/dev/block/sda999`
-    * `/dev/block/sdb1` to `/dev/block/sdb999`
+    * `/dev/block/sdb1` to `/dev/block/sdb999` and so on
     * `/dev/block/sdz1` to `/dev/block/sdz999`
     * `/dev/block/sdaa1` to `/dev/block/sdaa999` and so on until
     * `/dev/block/sdzz1` to `/dev/block/sdzz999`
