@@ -153,7 +153,7 @@ Once everything is configured properly, the `Bash` script `adb_backup.sh` can no
 $ adb_backup.sh
 ```
 
-This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DDTHH-MM-SS+Z_backup`), in which the `entire backup process` and `errors` will be `logged`:
+This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DDTHH-MM-SSz_backup`), in which the `entire backup process` and `errors` will be `logged`:
 ```bash
 2025-06-14T19-36-30+0200: <some_device_id>: Saving file: '/etc/blkid.tab' to './2025-06-14T19-36-29+0200_backup//etc/blkid.tab'...
 /etc/blkid.tab: 1 file pulled, 0 skipped. 0.0 MB/s (693 bytes in 0.042s)
