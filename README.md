@@ -85,7 +85,7 @@ The `Extended Regular Expression` for the variable `partition_regex` may need to
 Matching `block device files` until `999` should make the script dynamic enough for future updates.
 
 ## Adapting the Extended Regular Expression
-One can use the online tool [`RegExr`](https://regexr.com/) for debugging, if the `Extended Regular Expression` needs to be adapted.
+One can use the online tools [`RegExr`](https://regexr.com/) or [`regex101`](https://regex101.com/) for debugging, if the `Extended Regular Expression` needs to be adapted.
 
 In order to do so, the `device partition structure` in the file `/proc/partitions` and in the directory `/dev/block/by-name/` needs to be analysed:
 ```bash
