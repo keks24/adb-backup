@@ -22,9 +22,9 @@ xargs
 xz
 ```
 
-* The `Smartphone` is connected via `USB`.
+* The `Android device` is connected via `USB`.
 
-* The `Smartphone` is `rebooted` in `recovery` mode and has `ADB enabled`:
+* The `Android device` is `rebooted` in `recovery` mode and has `ADB enabled`:
 ```bash
 $ adb reboot recovery
 $ adb devices -l
