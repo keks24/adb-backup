@@ -181,6 +181,8 @@ This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DD
 [...]
 2025-06-14T22-22-04+0200: <some_device_id>: Checking archive integrity of: './2025-06-14T19-36-29+0200_backup/sda1.img.xz
 2025-06-14T23-37-41+0200: <some_device_id>: Generating BLAKE2 checksum file: './2025-06-14T19-36-29+0200_backup/sda1.img.xz.b2' of './2025-06-14T19-36-29+0200_backup/sda1.img'...
+
+2025-06-14T23-37-45+0200: <some_device_id>: Checking archive checksum of: './2025-06-14T19-36-29+0200_backup/sda1.img.xz.b2'...
 $ LS_COLORS="" tree -FC "./2025-06-14T19-36-29+0200_backup/"
 2025-06-14T19-36-29+0200_backup/
 ├── 2025-06-14T19-36-29+0200_backup.err
@@ -204,7 +206,17 @@ $ LS_COLORS="" tree -FC "./2025-06-14T19-36-29+0200_backup/"
 [...]
 ```
 
-Once the `images files` are being `compressed`, the `Android device` can be disconnected.
+The backup process is divided in `seven steps`:
+
+1. Save `system information`, which are defined in the variable `system_information_array`.
+2. Save `partition labels` from `/dev/block/by-name/`.
+3. Save `block device files` as `image files`.
+4. Compress saved `image files` via `parallelised xz` (`pixz`) with highest compression level (`9`), using `all processor cores`.
+5. Verify archive integrity in a `parallelised way` via `xz` and `xargs`.
+6. Generate `BLAKE2` checksum files in a `parallelised way` for `each archive file` via `b2sum` and `xargs`.
+7. Verify `BLAKE2` checksum files in a `parallelised way` for `each archive file` via `b2sum` and `xargs`.
+
+Once the `images files` are being `compressed` at `step four`, the `Android device` can `safely` be disconnected.
 
 # Verifying archive and file integrity
 The following commands can be used to `verify` the `archive` and `file` integrity:
