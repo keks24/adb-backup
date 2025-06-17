@@ -180,8 +180,9 @@ This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DD
 2025-06-14T21-28-14+0200: <some_device_id>: Compressing file: './2025-06-14T19-36-29+0200_backup/sda1.img' to './2025-06-14T19-36-29+0200_backup/sda1.img.xz'...
 [...]
 2025-06-14T22-22-04+0200: <some_device_id>: Checking archive integrity of: './2025-06-14T19-36-29+0200_backup/sda1.img.xz
+2025-06-14T22-22-41+0200:
 2025-06-14T23-37-41+0200: <some_device_id>: Generating BLAKE2 checksum file: './2025-06-14T19-36-29+0200_backup/sda1.img.xz.b2' of './2025-06-14T19-36-29+0200_backup/sda1.img'...
-
+2025-06-14T22-22-45+0200:
 2025-06-14T23-37-45+0200: <some_device_id>: Checking archive checksum of: './2025-06-14T19-36-29+0200_backup/sda1.img.xz.b2'...
 $ LS_COLORS="" tree -FC "./2025-06-14T19-36-29+0200_backup/"
 2025-06-14T19-36-29+0200_backup/
