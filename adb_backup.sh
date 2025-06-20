@@ -195,7 +195,8 @@ getPartitionList()
         # filter list of partition names
         partition_name_list=$(/usr/bin/gawk \
                                 --assign="partition_regex=${partition_regex}" \
-                                '$0 ~ partition_regex { print $4 }' <<< "${partition_table}")
+                                '$0 ~ partition_regex { print $4 }' <<< "${partition_table}" \
+                             )
         echo "${partition_name_list}"
     else
         outputWarningError "Could not find file: '${partition_file}'" "error"
