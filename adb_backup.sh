@@ -318,6 +318,7 @@ checkDeviceConnection()
                     # return true
                     exit 1
                 }
+
                 else
                 {
                     # return false
