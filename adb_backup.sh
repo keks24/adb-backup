@@ -263,18 +263,22 @@ executeChecksumCommand()
     local checksum_file="${2}"
 
     {
+        # TODO: parallelise this
         /usr/bin/b2sum "${compressed_file}" > "${checksum_file}"
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
 executeAdbCommand()
 {
+    # mandatory
     local device_id="${1}"
     local command_type="${2}"
     local first_parameter="${3}"
+    # optional
     local second_parameter="${4}"
 
     {
+        # TODO: exit on error here
         /usr/bin/adb \
             -s "${device_id}" \
             "${command_type}" \
