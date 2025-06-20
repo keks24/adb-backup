@@ -204,57 +204,44 @@ getPartitionList()
     fi
 }
 
-executeArchiveCommand()
+executeInParallel()
 {
-    local file="${1}"
+    command_name="${1}"
+    command_parameter="${2}"
+    # remove command name and command parameters from function arguments
+    shift
+    shift
+    # all remaining arguments
+    declare -a argument_array
+    argument_array=("${@}")
 
     {
-        /usr/bin/pixz -9 "${file}"
+        # terminate each array element by a null-byte character
+        printf "%s\0" "${argument_array[@]}" \
+            | /usr/bin/xargs \
+                --null \
+                --no-run-if-empty \
+                --max-procs="${available_processors}" \
+                --max-args="${xargs_max_args}" \
+                "${command_name}" "${command_parameter}"
+    } > >(writeLogFile "log") 2> >(writeLogFile "error")
+}
+
+executeArchiveCommand()
+{
+    local image_file="${1}"
+
+    {
+        /usr/bin/pixz -9 "${image_file}"
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
 executeArchiveVerifyCommand()
 {
-    declare -a compressed_file_array
-    compressed_file_array=("${@}")
-    local compressed_file
+    declare -a compressed_image_file_array
+    compressed_image_file_array=("${@}")
 
-    {
-        {
-            # convert array to null-terminated string
-            for compressed_file in "${compressed_file_array[@]}"
-            do
-                printf "%s\0" "${compressed_file}"
-            done
-        } | /usr/bin/xargs \
-                --null \
-                --no-run-if-empty \
-                --max-procs="${available_processors}" \
-                --max-args="${xargs_max_args}" \
-                /usr/bin/xz --test
-    } > >(writeLogFile "log") 2> >(writeLogFile "error")
-}
-
-executeChecksumVerifyCommand()
-{
-    declare -a checksum_file_array
-    checksum_file_array=("${@}")
-    local checksum_file
-
-    {
-        {
-            # convert array to null-terminated string
-            for checksum_file in "${checksum_file_array[@]}"
-            do
-                printf "%s\0" "${checksum_file}"
-            done
-        } | /usr/bin/xargs \
-                --null \
-                --no-run-if-empty \
-                --max-procs="${available_processors}" \
-                --max-args="${xargs_max_args}" \
-                /usr/bin/b2sum --check
-    } > >(writeLogFile "log") 2> >(writeLogFile "error")
+    executeInParallel "/usr/bin/xz" "--test" "${compressed_image_file_array[@]}"
 }
 
 executeChecksumCommand()
@@ -266,6 +253,14 @@ executeChecksumCommand()
         # TODO: parallelise this
         /usr/bin/b2sum "${compressed_file}" > "${checksum_file}"
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
+}
+
+executeChecksumVerifyCommand()
+{
+    declare -a checksum_file_array
+    checksum_file_array=("${@}")
+
+    executeInParallel "/usr/bin/b2sum" "--check" "${checksum_file_array[@]}"
 }
 
 executeAdbCommand()
