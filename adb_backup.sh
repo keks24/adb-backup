@@ -89,7 +89,7 @@ checkCommands()
                 kill -s "SIGTERM" "${SCRIPT_PID}"
             fi
         done
-    # needs to be done manually, because of dependency conflicts.
+    # needs to be done manually, due to function dependency conflicts.
     } > >(/usr/bin/tee --append "${log_file}" >&1) 2> >(/usr/bin/tee --append "${error_log_file}" >&2)
 }
 
