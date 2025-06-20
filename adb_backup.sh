@@ -49,17 +49,13 @@ createBackupDirectories
 
 createLogFiles()
 {
-    declare -a file_array
-    file_array=(\
-                "${log_file}" \
-                "${error_log_file}" \
-               )
-    local file
+    declare -a log_file_array
+    log_file_array=(\
+                    "${log_file}" \
+                    "${error_log_file}" \
+                   )
 
-    for file in "${file_array[@]}"
-    do
-        /bin/touch "${file}"
-    done
+    /bin/touch "${log_file_array[@]}"
 }
 
 createLogFiles
