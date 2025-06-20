@@ -333,9 +333,9 @@ checkDeviceConnection()
         outputWarningError "The 'model name' must be: '${model_name}'." "error"
         outputWarningError "" "error"
         outputWarningError "ADB command output (\"/usr/bin/adb devices -l\"):" "warning"
-        outputWarningError "${adb_command_output}"
+        outputWarningError "${adb_command_output}" ""
         outputWarningError "" "error"
-        outputWarningError "\e[01;33mMake sure to reboot the device to 'recovery mode', in order to create a clean backup of all partitions: \"/usr/bin/adb reboot recovery\"\e[0m" "warning"
+        outputWarningError "\e[01;33mMake sure to reboot the device to '${boot_mode} mode', in order to create a clean backup of all partitions: '/usr/bin/adb reboot ${boot_mode}'\e[0m" "warning"
         kill -s "SIGTERM" "${SCRIPT_PID}"
     fi
 }
@@ -386,7 +386,7 @@ savePartitionsAsImages()
         device_partition_file="${block_device_directory}/${partition_name}"
         image_file="${backup_directory}/${partition_name}.img"
 
-        outputCurrentStep "Saving block device: '${device_partition_file}' to '${image_file}'..."
+        outputCurrentStep "Saving block device file: '${device_partition_file}' to '${image_file}'..."
         # "adb pull" is much faster than "adb shell 'cat [...]'"
         executeAdbCommand "${adb_device_id}" "pull" "${device_partition_file}" "${image_file}"
     done <<< "${partition_name_list}"
@@ -406,7 +406,7 @@ archiveImages()
         image_file="${backup_directory}/${partition_name}.img"
         compressed_image_file="${image_file}.xz"
 
-        outputCurrentStep "Compressing file: '${image_file}' to '${compressed_image_file}'..."
+        outputCurrentStep "Compressing image file: '${image_file}' to '${compressed_image_file}'..."
         executeArchiveCommand "${image_file}"
     done <<< "${partition_name_list}"
 
@@ -426,7 +426,7 @@ verifyArchiveIntegrity()
         compressed_image_file_array+=("${image_file}.xz")
     done <<< "${partition_name_list}"
 
-    outputCurrentStep "Checking archive integrity of: '${compressed_image_file_array[@]}'..."
+    outputCurrentStep "Verifying archive integrity of: '${compressed_image_file_array[@]}'..."
     executeArchiveVerifyCommand "${compressed_image_file_array[@]}"
     outputNewline
 }
