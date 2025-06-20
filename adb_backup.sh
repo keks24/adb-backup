@@ -160,7 +160,7 @@ writeLogFile()
             ;;
 
         *)
-            outputWarningError "${function_name}: Wrong parameter: Must be either 'log' or 'error'." "error"
+            outputWarningError "${function_name}: Wrong argument: Must be either 'log' or 'error'." "error"
             kill -s "SIGTERM" "${SCRIPT_PID}"
     esac
 }
