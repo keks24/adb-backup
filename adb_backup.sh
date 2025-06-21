@@ -462,7 +462,7 @@ verifyArchiveChecksums()
         checksum_file_array+=("${compressed_image_file}.b2")
     done <<< "${partition_name_list}"
 
-    outputCurrentStep "Checking archive checksum of: '${checksum_file_array[@]}'..."
+    outputCurrentStep "Checking archive checksum using: '${checksum_file_array[@]}'..."
     executeChecksumVerifyCommand "${checksum_file_array[@]}"
 }
 
