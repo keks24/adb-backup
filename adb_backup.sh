@@ -204,29 +204,6 @@ getPartitionList()
     fi
 }
 
-executeInParallel()
-{
-    command_name="${1}"
-    command_parameter="${2}"
-    # remove command name and command parameters from function arguments
-    shift
-    shift
-    # all remaining arguments
-    declare -a argument_array
-    argument_array=("${@}")
-
-    {
-        # terminate each array element by a null-byte character
-        printf "%s\0" "${argument_array[@]}" \
-            | /usr/bin/xargs \
-                --null \
-                --no-run-if-empty \
-                --max-procs="${available_processors}" \
-                --max-args="${xargs_max_args}" \
-                "${command_name}" "${command_parameter}"
-    } > >(writeLogFile "log") 2> >(writeLogFile "error")
-}
-
 executeArchiveCommand()
 {
     local image_file="${1}"
@@ -241,17 +218,33 @@ executeArchiveVerifyCommand()
     declare -a compressed_image_file_array
     compressed_image_file_array=("${@}")
 
-    executeInParallel "/usr/bin/xz" "--test" "${compressed_image_file_array[@]}"
+    {
+        # terminate each array element by a null-byte character
+        printf "%s\0" "${compressed_image_file_array[@]}" \
+            | /usr/bin/xargs \
+                --null \
+                --no-run-if-empty \
+                --max-procs="${available_processors}" \
+                --max-args="${xargs_max_args}" \
+                /usr/bin/xz --test
+    } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
 executeChecksumCommand()
 {
-    local compressed_file="${1}"
-    local checksum_file="${2}"
+    declare -a compressed_image_file_array
+    compressed_image_file_array=("${@}")
 
     {
-        # TODO: parallelise this
-        /usr/bin/b2sum "${compressed_file}" > "${checksum_file}"
+        # terminate each array element by a null-byte character
+        printf "%s\0" "${compressed_image_file_array[@]}" \
+            | /usr/bin/xargs \
+                --null \
+                --no-run-if-empty \
+                --max-procs="${available_processors}" \
+                --replace="{}" \
+                /bin/bash -c \
+                    "/usr/bin/b2sum '{}' > '{}.b2'"
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
@@ -260,7 +253,16 @@ executeChecksumVerifyCommand()
     declare -a checksum_file_array
     checksum_file_array=("${@}")
 
-    executeInParallel "/usr/bin/b2sum" "--check" "${checksum_file_array[@]}"
+    {
+        # terminate each array element by a null-byte character
+        printf "%s\0" "${checksum_file_array[@]}" \
+            | /usr/bin/xargs \
+                --null \
+                --no-run-if-empty \
+                --max-procs="${available_processors}" \
+                --max-args="${xargs_max_args}" \
+                /usr/bin/b2sum --check --quiet
+    } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
 executeAdbCommand()
@@ -412,8 +414,8 @@ verifyArchiveIntegrity()
 {
     local partition_name_list=$(getPartitionList)
     local partition_name
-    declare -a compressed_image_file_array
     local image_file
+    declare -a compressed_image_file_array
 
     while read -r partition_name
     do
@@ -432,18 +434,16 @@ generateChecksums()
     local partition_name
     local image_file
     local compressed_image_file
-    local checksum_file
+    local checksum_file_array
 
     while read -r partition_name
     do
         image_file="${backup_directory}/${partition_name}.img"
-        compressed_image_file="${image_file}.xz"
-        checksum_file="${compressed_image_file}.b2"
-
-        outputCurrentStep "Generating BLAKE2 checksum file: '${checksum_file}' of '${image_file}'...\e[0m"
-        executeChecksumCommand "${compressed_image_file}" "${checksum_file}"
+        compressed_image_file_array+=("${image_file}.xz")
     done <<< "${partition_name_list}"
 
+    outputCurrentStep "Generating BLAKE2 checksum file: '${compressed_image_file_array[@]}'...\e[0m"
+    executeChecksumCommand "${compressed_image_file_array[@]}"
     outputNewline
 }
 
