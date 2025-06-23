@@ -300,31 +300,34 @@ deviceFileDirectoryExists()
 
 checkDeviceConnection()
 {
+    # TODO: this is not working properly...
     if ! /usr/bin/gawk \
             --assign="adb_device_id=${adb_device_id}" \
             --assign="transport_protocol=${transport_protocol}" \
+            --assign="product_name=${product_name}" \
             --assign="boot_mode=${boot_mode}" \
             --assign="model_name=${model_name}" \
             --assign="device_name=${device_name}" \
             '{
-                adb_command_output=$0
-                device_pattern=adb_device_id" +?"boot_mode".?"transport_protocol".?"model_name".*"device_name".*?$"
+                adb_command_output=$0;
+                device_pattern=adb_device_id " +?" boot_mode " " transport_protocol ".*?" product_name " " model_name " " device_name ".*?$";
 
                 if(adb_command_output ~ device_pattern)
                 {
                     # return true
-                    exit 1
+                    exit 1;
                 }
 
                 else
                 {
                     # return false
-                    exit 0
+                    exit 0;
                 }
              }' <<< "${adb_command_output}"
     then
         outputWarningError "The 'ADB device ID' must be: '${adb_device_id}'." "error"
         outputWarningError "The 'transport protocol' must be: '${transport_protocol}'." "error"
+        outputWarningError "The 'product name' must be: '${product_name}'." "error"
         outputWarningError "The 'boot mode' must be: '${boot_mode}'." "error"
         outputWarningError "The 'device name' must be: '${device_name}'." "error"
         outputWarningError "The 'model name' must be: '${model_name}'." "error"
