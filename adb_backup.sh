@@ -433,16 +433,17 @@ generateChecksums()
     local partition_name_list=$(getPartitionList)
     local partition_name
     local image_file
-    local compressed_image_file
-    local checksum_file_array
+    declare -a  compressed_image_file_array
+    declare -a checksum_file_array
 
     while read -r partition_name
     do
         image_file="${backup_directory}/${partition_name}.img"
         compressed_image_file_array+=("${image_file}.xz")
+        checksum_file_array+=("${image_file}.xz.b2")
     done <<< "${partition_name_list}"
 
-    outputCurrentStep "Generating BLAKE2 checksum file: '${compressed_image_file_array[@]}'...\e[0m"
+    outputCurrentStep "Generating BLAKE2 checksum files: '${checksum_file_array[@]}'...\e[0m"
     executeChecksumCommand "${compressed_image_file_array[@]}"
     outputNewline
 }
@@ -462,7 +463,7 @@ verifyArchiveChecksums()
         checksum_file_array+=("${compressed_image_file}.b2")
     done <<< "${partition_name_list}"
 
-    outputCurrentStep "Checking archive checksum using: '${checksum_file_array[@]}'..."
+    outputCurrentStep "Verifying archive checksum using: '${checksum_file_array[@]}'..."
     executeChecksumVerifyCommand "${checksum_file_array[@]}"
 }
 
