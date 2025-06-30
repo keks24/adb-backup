@@ -25,7 +25,7 @@ trap "exit 1" SIGTERM
 # define global variables
 script_directory_path="${0%/*}"
 script_name="${0##*/}"
-# make script pid available for subshells
+## make script pid available; also for subshells ("export")
 export SCRIPT_PID="${$}"
 configuration_name="${script_name/\.sh/.conf}"
 configuration_file="${script_directory_path}/${configuration_name}"
