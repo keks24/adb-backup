@@ -34,7 +34,7 @@ source "${configuration_file}"
 # secure access permissions
 ## created files: 600
 ## created directories: 700
-umask "077"
+umask 0077
 
 createBackupDirectories()
 {
