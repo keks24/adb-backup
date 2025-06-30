@@ -300,30 +300,31 @@ deviceFileDirectoryExists()
 
 checkDeviceConnection()
 {
-    # TODO: this is not working properly...
+
+    local device_pattern="${adb_device_id} +?${boot_mode} ${transport_protocol}.*?${product_name} ${model_name} ${device_name}.*?$"
+
     if ! /usr/bin/gawk \
-            --assign="adb_device_id=${adb_device_id}" \
-            --assign="transport_protocol=${transport_protocol}" \
-            --assign="product_name=${product_name}" \
-            --assign="boot_mode=${boot_mode}" \
-            --assign="model_name=${model_name}" \
-            --assign="device_name=${device_name}" \
-            '{
-                adb_command_output=$0;
-                device_pattern=adb_device_id " +?" boot_mode " " transport_protocol ".*?" product_name " " model_name " " device_name ".*?$";
+        --assign="device_pattern=${device_pattern}" \
+        'BEGIN{
+            match_found=0;
+        }
 
-                if(adb_command_output ~ device_pattern)
-                {
-                    # return true
-                    exit 1;
-                }
+        {
+            adb_command_output=$0;
 
-                else
-                {
-                    # return false
-                    exit 0;
-                }
-             }' <<< "${adb_command_output}"
+            if(adb_command_output ~ device_pattern)
+                match_found=1;
+        }
+
+        END{
+            if(match_found)
+                # return true
+                exit 0;
+
+            else
+                # return false
+                exit 1;
+        }' <<< "${adb_command_output}"
     then
         outputWarningError "The 'ADB device ID' must be: '${adb_device_id}'." "error"
         outputWarningError "The 'transport protocol' must be: '${transport_protocol}'." "error"
