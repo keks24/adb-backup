@@ -38,11 +38,17 @@ umask 0077
 
 createBackupDirectories()
 {
+    local directory
+
     /bin/mkdir \
         --parent \
         "${backup_directory}" \
-        "${backup_directory}/dev" \
-        "${backup_directory}/"{dev/block,etc,proc}
+        "${backup_directory}/${block_device_directory}"
+
+    for directory in "${system_information_array[@]%/*}"
+    do
+        /bin/mkdir --parent "${backup_directory}/${directory}"
+    done
 }
 
 createBackupDirectories
