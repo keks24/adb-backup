@@ -117,6 +117,7 @@ outputWarningError()
         "warning")
             # TODO: change handling with process substitution, since the processes
             #       inside the process substitution are not waited for.
+            #       the output is not in order.
             {
                 echo -e "${date_time_format@P}: \e[01;33m${adb_device_id}: ${message}\e[0m"
             } > >(writeLogFile "error")
