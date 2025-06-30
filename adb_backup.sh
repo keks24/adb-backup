@@ -45,6 +45,7 @@ createBackupDirectories()
         "${backup_directory}" \
         "${backup_directory}/${block_device_directory}"
 
+    # TODO: this is very inefficient, multiple entries are not merged to one.
     for directory in "${system_information_array[@]%/*}"
     do
         /bin/mkdir --parent "${backup_directory}/${directory}"
