@@ -38,17 +38,27 @@ umask 0077
 
 createBackupDirectories()
 {
-    local directory
+    declare -a subdirectory_array
+    local subdirectory
+    local system_information
 
     /bin/mkdir \
         --parent \
         "${backup_directory}" \
         "${backup_directory}/${block_device_directory}"
 
-    # TODO: this is very inefficient, multiple entries are not merged to one.
-    for directory in "${system_information_array[@]%/*}"
+    subdirectory_array=(\
+                        $(\
+                            for system_information in "${system_information_array[@]%/*}"
+                            do
+                                echo "${system_information}"
+                            done | /bin/sort --unique
+                         )
+                       )
+
+    for subdirectory in "${subdirectory_array[@]}"
     do
-        /bin/mkdir --parent "${backup_directory}/${directory}"
+        /bin/mkdir --parent "${backup_directory}/${subdirectory}"
     done
 }
 
@@ -70,6 +80,7 @@ createLogFiles
 declare -a command_array
 command_array=(\
                 "/bin/mkdir" \
+                "/bin/sort" \
                 "/bin/touch" \
                 "/usr/bin/adb" \
                 "/usr/bin/b2sum" \

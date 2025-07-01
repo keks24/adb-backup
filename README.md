@@ -16,6 +16,7 @@ id
 mkdir
 nproc
 pixz
+sort
 tee
 touch
 xargs
