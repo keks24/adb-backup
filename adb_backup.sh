@@ -47,8 +47,8 @@ createBackupDirectories()
         "${backup_directory}" \
         "${backup_directory}/${block_device_directory}"
 
-    subdirectory_array=(\
-                        $(\
+    subdirectory_array=(
+                        $(
                             for system_information in "${system_information_array[@]%/*}"
                             do
                                 echo "${system_information}"
@@ -67,9 +67,9 @@ createBackupDirectories
 createLogFiles()
 {
     declare -a log_file_array
-    log_file_array=(\
-                    "${log_file}" \
-                    "${error_log_file}" \
+    log_file_array=(
+                    "${log_file}"
+                    "${error_log_file}"
                    )
 
     /bin/touch "${log_file_array[@]}"
@@ -78,19 +78,19 @@ createLogFiles()
 createLogFiles
 
 declare -a command_array
-command_array=(\
-                "/bin/mkdir" \
-                "/bin/sort" \
-                "/bin/touch" \
-                "/usr/bin/adb" \
-                "/usr/bin/b2sum" \
-                "/usr/bin/gawk" \
-                "/usr/bin/id" \
-                "/usr/bin/nproc" \
-                "/usr/bin/pixz" \
-                "/usr/bin/tee" \
-                "/usr/bin/xargs" \
-                "/usr/bin/xz" \
+command_array=(
+                "/bin/mkdir"
+                "/bin/sort"
+                "/bin/touch"
+                "/usr/bin/adb"
+                "/usr/bin/b2sum"
+                "/usr/bin/gawk"
+                "/usr/bin/id"
+                "/usr/bin/nproc"
+                "/usr/bin/pixz"
+                "/usr/bin/tee"
+                "/usr/bin/xargs"
+                "/usr/bin/xz"
               )
 checkCommands()
 {
@@ -212,9 +212,10 @@ getPartitionList()
         # get partition information from file
         partition_table=$(< "${partition_file}")
         # filter list of partition names
-        partition_name_list=$(/usr/bin/gawk \
-                                --assign="partition_regex=${partition_regex}" \
-                                '$0 ~ partition_regex { print $4 }' <<< "${partition_table}" \
+        partition_name_list=$(
+                                /usr/bin/gawk
+                                    --assign="partition_regex=${partition_regex}"
+                                    '$0 ~ partition_regex { print $4 }' <<< "${partition_table}"
                              )
         echo "${partition_name_list}"
     else
