@@ -23,6 +23,8 @@ xargs
 xz
 ```
 
+* Free space of at least `2.0` times the `memory capactiy` of the device
+
 * The `Android device` is connected via `USB`.
 
 * The `Android device` is `rebooted` in `recovery` mode and has `ADB enabled`:
