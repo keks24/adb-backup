@@ -240,8 +240,7 @@ executeArchiveCommand()
 executeArchiveVerifyCommand()
 {
     declare -a compressed_image_file_array
-    # TODO: this will cause issues, if the directory or filename contains
-    #       spaces or special characters.
+    # TODO: handle spaces or special characters in file or directory names
     compressed_image_file_array=("${@}")
 
     {
@@ -259,8 +258,7 @@ executeArchiveVerifyCommand()
 executeChecksumCommand()
 {
     declare -a compressed_image_file_array
-    # TODO: this will cause issues, if the directory or filename contains
-    #       spaces or special characters.
+    # TODO: handle spaces or special characters in file or directory names
     compressed_image_file_array=("${@}")
 
     {
@@ -279,8 +277,7 @@ executeChecksumCommand()
 executeChecksumVerifyCommand()
 {
     declare -a checksum_file_array
-    # TODO: this will cause issues, if the directory or filename contains
-    #       spaces or special characters.
+    # TODO: handle spaces or special characters in file or directory names
     checksum_file_array=("${@}")
 
     {
