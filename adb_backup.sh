@@ -459,16 +459,12 @@ rebootDevice()
     outputCurrentStep "Waiting for device to boot to: '${target_boot_mode} mode'. Please enable 'ADB'..."
 
     # check, if device is booted in target boot mode
-    while [[ true ]]
+    while ! checkDeviceConnection "recovery" "disable_output"
     do
-        if ! checkDeviceConnection "recovery" "disable_output"
-        then
-            /bin/sleep 2s
-        else
-            outputNewline
-            break
-        fi
+        /bin/sleep 2s
     done
+
+    outputNewline
 }
 
 savePartitionsAsImages()
