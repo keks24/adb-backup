@@ -1,5 +1,5 @@
 # Introduction
-`adb-backup` saves `partition information` and `various system information` of an `Android device` using `bash` and `adb`.
+`adb-backup` semiautomatically saves `partition information` and `various system information` of an `Android device` using `bash` and `adb`.
 
 # Prerequisites
 * `Knowledge` about [`Extended Regular Expressions`](https://en.wikibooks.org/wiki/Regular_Expressions/POSIX-Extended_Regular_Expressions).
