@@ -216,8 +216,8 @@ getPartitionList()
         partition_table=$(< "${partition_file}")
         # filter list of partition names
         partition_name_list=$(
-                                /usr/bin/gawk
-                                    --assign="partition_regex=${partition_regex}"
+                                /usr/bin/gawk \
+                                    --assign="partition_regex=${partition_regex}" \
                                     '$0 ~ partition_regex { print $4 }' <<< "${partition_table}"
                              )
         echo "${partition_name_list}"
