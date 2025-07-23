@@ -453,12 +453,13 @@ rebootDevice()
             kill -s "SIGTERM" "${SCRIPT_PID}"
     esac
 
+    outputCurrentStep "Waiting for device to boot to: '${target_boot_mode} mode'. Please enable 'ADB'..."
+
     # check, if device is booted in target boot mode
     while [[ true ]]
     do
         if ! checkDeviceConnection "recovery" "disable_output"
         then
-            outputCurrentStep "Waiting for device to boot to: '${target_boot_mode} mode'. Please enable 'ADB'..."
             /bin/sleep 2s
         else
             outputNewline
