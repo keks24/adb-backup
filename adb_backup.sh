@@ -127,17 +127,20 @@ outputWarningError()
 
     case "${message_type}" in
         "warning")
-            # TODO: change handling with process substitution, since the processes
-            #       inside the process substitution are not waited for.
-            #       the output is not in order.
             {
                 echo -e "${date_time_format@P}: \e[01;33m${adb_device_id}: ${message}\e[0m"
+                # wait 1 ms for an ordered output, otherwise subshells may be
+                # executed in parallel.
+                /bin/sleep 0.001s
             } > >(writeLogFile "error")
             ;;
 
         "error")
             {
                 echo -e "${date_time_format@P}: \e[01;31m${adb_device_id}: ${message}\e[0m"
+                # wait 1 ms for an ordered output, otherwise subshells may be
+                # executed in parallel.
+                /bin/sleep 0.001s
             } > >(writeLogFile "error")
             ;;
 
