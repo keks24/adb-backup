@@ -53,6 +53,9 @@ createBackupDirectories()
                                 "${system_information_array[@]}" \
                                 "${decrypted_files_array[@]}"
                             do
+                                # remove everything after the last slash
+                                # character.
+                                # example: "/proc/blkid.tab" to "/proc"
                                 echo "${array_element%/*}"
                             done | /bin/sort --unique
                          )
