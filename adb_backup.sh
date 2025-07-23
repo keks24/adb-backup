@@ -193,6 +193,9 @@ outputNewline()
 {
     {
         echo "${date_time_format@P}: ${adb_device_id}:"
+        # wait 1 ms for an ordered output, otherwise subshells may be
+        # executed in parallel.
+        /bin/sleep 0.001s
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
