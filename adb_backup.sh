@@ -80,6 +80,7 @@ createLogFiles
 declare -a command_array
 command_array=(
                 "/bin/mkdir"
+                "/bin/sleep"
                 "/bin/sort"
                 "/bin/touch"
                 "/usr/bin/adb"

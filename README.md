@@ -16,6 +16,7 @@ id
 mkdir
 nproc
 pixz
+sleep
 sort
 tee
 touch
