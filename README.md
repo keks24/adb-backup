@@ -28,16 +28,18 @@ xz
 
 * The `Android device` is connected via `USB`.
 
-* The `Android device` is `rebooted` in `recovery` mode and has `ADB enabled`:
+* The `Android device` was `unlocked` at least once, so the partitions are decrypted.
+
+* The `Android device` is booted in `device mode` and has `ADB enabled` (`USB debugging` in `Developer options`).
 ```bash
-$ adb reboot recovery
 $ adb devices -l
 List of devices attached
-<some_device_id>               recovery usb:<some_bus_number>-<some_port_number> product:<some_product_name> model:<some_model_name> device:<some_device_name> transport_id:<some_id>
+<some_device_id>               device usb:<some_bus_number>-<some_port_number> product:<some_product_name> model:<some_model_name> device:<some_device_name> transport_id:<some_id>
 ```
 
-* The `device partition table` at `/proc/partitions` is readable via `ADB`:
+* The `device partition table` at `/proc/partitions` is readable via `ADB` in `recovery mode`:
 ```bash
+$ adb reboot recovery
 $ adb -s <some_device_id> shell "head -n 24 '/proc/partitions' | grep -v 'ram'"
 major minor  #blocks  name
 
@@ -48,10 +50,11 @@ major minor  #blocks  name
    8        4       1024 sda4
    8        5        512 sda5
 [...]
+$ adb reboot device
 ```
 
 # Installation
-`Clone` the repository into a directory, where the backup should be saved:
+`Clone` the repository into a directory, where the `backup should be saved`:
 ```bash
 $ git clone "https://codeberg.org/keks24/adb-backup.git"
 ```
@@ -62,14 +65,18 @@ Adapt the following entries in the configuration file `adb_backup.conf`:
 ```no-highlight
 partition_regex="(sd[a-z]{1,2}|mmcblk[0-9][0-9]{0,2}p|md)[1-9][0-9]{0,2}"
 adb_device_id="<some_device_id>"
+product_name="product:<some_product_name>"
 model_name="model:<some_model_name>"
 device_name="device:<some_device_name>"
 ```
 
 Replace the following values with the information of the `desired Android device`, from which the backup should be taken from:
 * `<some_device_id>`
+* `<some_product_name>`
 * `<some_model_name>`
 * `<some_device_name>`
+
+Use the command `adb devices -l` to get all information.
 
 The `Extended Regular Expression` for the variable `partition_regex` may need to be `adapted manually` as well. Currently, it is set to match the following `block device files`:
 * `scsi disks`
@@ -118,15 +125,17 @@ In this case, the desired `block device files`, which contain the `partition inf
 /dev/block/sda1
 /dev/block/sda2
 [...]
-/dev/block/sdb1
+/dev/block/sdd1
 [...]
-/dev/block/sdf6
+/dev/block/sde79
+[...]
+/dev/block/sdf1
 [...]
 ```
 
 In order match `all` these files, the following `Extended Regular Expression` can be used:
 ```bash
-## partitions: sd{a..f}{1..999}
+## in "bash" notation: sd{a..f}{1..999}
 partition_regex="sd[a-f][1-9][0-9]{0,2}"
 ```
 
@@ -135,9 +144,10 @@ This will match `all block device files` from:
 * `/dev/block/sdb1` to `/dev/block/sdb999` and so on until
 * `/dev/block/sdf1` to `/dev/block/sdf999`
 
-# Further configuration
-The array `system_information_array` can be adapted, in order to backup more files:
+## Adapting array variables
+The variables `system_information_array` and `decrypted_directory_array` can be adapted, in order to backup more files:
 ```bash
+[...]
 system_information_array=(
                             "/etc/blkid.tab"
                             "/etc/fstab"
@@ -149,6 +159,11 @@ system_information_array=(
                             "/proc/meminfo"
                             "/proc/partitions"
                          )
+
+[...]
+decrypted_directory_array=(
+                            "/storage/."
+                          )
 ```
 
 # Creating backups
@@ -157,8 +172,15 @@ Once everything is configured properly, the `Bash` script `adb_backup.sh` can no
 $ adb_backup.sh
 ```
 
-This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DDTHH-MM-SSz_backup`), in which the backup will be `saved`. `Logs` and `errors` of the `entire backup process` are are written in it as well:
+This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DDTHH-MM-SSz_backup`), in which the backup will be `saved`. `Logs` and `errors` of the `entire backup process` are written in it as well:
 ```bash
+2025-06-14T19-20-16+0200: <some_device_id>: Saving directory: '/storage/.' to './2025-06-14T19-36-29+0200_backup//storage/.'...
+/storage/./: 3573 files pulled, 0 skipped. 20.6 MB/s (13635811413 bytes in 600.756s)
+2025-06-14T19-30-17+0200: <some_device_id>:
+2025-06-14T19-30-17+0200: <some_device_id>: Rebooting device to: 'recovery mode'...
+2025-06-14T19-30-19+0200: <some_device_id>:
+2025-06-14T19-30-21+0200: <some_device_id>: Waiting for device to boot to: 'recovery mode'. Please enable 'ADB'...
+2025-06-14T19-30-47+0200: <some_device_id>:
 2025-06-14T19-36-30+0200: <some_device_id>: Saving file: '/etc/blkid.tab' to './2025-06-14T19-36-29+0200_backup//etc/blkid.tab'...
 /etc/blkid.tab: 1 file pulled, 0 skipped. 0.0 MB/s (693 bytes in 0.042s)
 2025-06-14T19-36-30+0200: <some_device_id>: Saving file: '/etc/fstab' to './2025-06-14T19-36-29+0200_backup//etc/fstab'...
@@ -178,22 +200,29 @@ This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DD
 2025-06-14T19-36-30+0200: <some_device_id>: Saving file: '/proc/partitions' to './2025-06-14T19-36-29+0200_backup//proc/partitions'...
 /proc/partitions: 1 file pulled, 0 skipped. 1.0 MB/s (4311 bytes in 0.004s)
 2025-06-14T19-36-30+0200: <some_device_id>: Saving partition labels: from '/dev/block/by-name/' to './2025-06-14T19-36-29+0200_backup//dev/block/partition_labels.list'...
-2025-06-14T19-36-30+0200:
-2025-06-14T19-36-30+0200: <some_device_id>: Saving block device file: '/dev/block/sda1' to './2025-06-14T19-36-29+0200_backup/sda1.img'...
+2025-06-14T19-36-30+0200: <some_device_id>:
+2025-06-14T19-36-30+0200: <some_device_id>: Saving block device file: '/dev/block/sda1' to './2025-06-14T19-36-29+0200_backup//dev/block/sda1.img'...
+2025-06-14T19-36-40+0200: <some_device_id>: Saving block device file: '/dev/block/sda2' to './2025-06-14T19-36-29+0200_backup//dev/block/sda2.img'...
 [...]
-2025-06-14T21-28-14+0200: <some_device_id>: Compressing image file: './2025-06-14T19-36-29+0200_backup/sda1.img' to './2025-06-14T19-36-29+0200_backup/sda1.img.xz'...
+2025-06-14T21-28-14+0200: <some_device_id>: Compressing image file: './2025-06-14T19-36-29+0200_backup//dev/block/sda1.img' to './2025-06-14T19-36-29+0200_backup//dev/block/sda1.img.xz'...
+2025-06-14T21-28-24+0200: <some_device_id>: Compressing image file: './2025-06-14T19-36-29+0200_backup//dev/block/sda2.img' to './2025-06-14T19-36-29+0200_backup//dev/block/sda2.img.xz'...
 [...]
-2025-06-14T22-22-04+0200: <some_device_id>: Verifying archive integrity of: './2025-06-14T19-36-29+0200_backup/sda1.img.xz' './2025-06-14T19-36-29+0200_backup/sda2.img.xz'...
-2025-06-14T22-22-41+0200:
-2025-06-14T23-37-41+0200: <some_device_id>: Generating BLAKE2 checksum files: './2025-06-14T19-36-29+0200_backup/sda1.img.xz.b2' of './2025-06-14T19-36-29+0200_backup/sda1.img'...
-2025-06-14T22-22-45+0200:
-2025-06-14T23-37-45+0200: <some_device_id>: Verifying archive checksum using: './2025-06-14T19-36-29+0200_backup/sda1.img.xz.b2'...
+2025-06-14T22-22-04+0200: <some_device_id>: Verifying archive integrity of: './2025-06-14T19-36-29+0200_backup//dev/block/sda1.img.xz ./2025-06-14T19-36-29+0200_backup//dev/block/sda2.img.xz [...]'...
+2025-06-14T22-22-41+0200: <some_device_id>:
+2025-06-14T23-37-41+0200: <some_device_id>: Generating BLAKE2 checksum files: './2025-06-14T19-36-29+0200_backup//dev/block/sda1.img.xz.b2 ./2025-06-14T19-36-29+0200_backup//dev/block/sda2.img.xz.b2 [...]'...
+2025-06-14T22-22-45+0200: <some_device_id>:
+2025-06-14T23-37-45+0200: <some_device_id>: Verifying archive checksum using: './2025-06-14T19-36-29+0200_backup//dev/block/sda1.img.xz.b2 ./2025-06-14T19-36-29+0200_backup//dev/block/sda2.img.xz.b2 [...]'...
 $ LS_COLORS="" tree -FC "./2025-06-14T19-36-29+0200_backup/"
 2025-06-14T19-36-29+0200_backup/
 ├── 2025-06-14T19-36-29+0200_backup.err
 ├── 2025-06-14T19-36-29+0200_backup.log
 ├── dev/
 │   └── block/
+│       ├── sda1.img.xz
+│       ├── sda1.img.xz.b2
+│       ├── sda2.img.xz
+│       ├── sda2.img.xz.b2
+│       ├── [...]
 │       └── partition_labels.list
 ├── etc/
 │   ├── blkid.tab
@@ -206,22 +235,29 @@ $ LS_COLORS="" tree -FC "./2025-06-14T19-36-29+0200_backup/"
 │   ├── devices
 │   ├── meminfo
 │   └── partitions
-├── sda1.img.xz
-├── sda1.img.xz.b2
+├── storage/
+│   ├── ABCD-1234
+│   ├── emulated
+│   └── self
+│       └── primary
+│           └── [...]
 [...]
 ```
 
-The backup process is divided in `seven steps`:
+The backup process is divided in `ten steps`:
 
-1. Save `system information`, which are defined in the variable `system_information_array`.
-2. Save `partition labels` from `/dev/block/by-name/`.
-3. Save `block device files` as `image files`.
-4. Compress saved `image files` via `parallelised xz` (`pixz`) with highest compression level (`9`), using `all processor cores`.
-5. Verify archive integrity in a `parallelised way` via `xz` and `xargs`.
-6. Generate `BLAKE2` checksum files in a `parallelised way` for `each archive file` via `b2sum` and `xargs`.
-7. Verify `BLAKE2` checksum files in a `parallelised way` for `each archive file` via `b2sum` and `xargs`.
+1. Save `decrypted files and directories`, which are defined in the variable `decrypted_files_array`.
+2. Reboot the device to `recovery mode`.
+3. Manually enable `ADB` in `recovery mode`.
+4. Save `system information`, which are defined in the variable `system_information_array`.
+5. Save `partition labels` from the directory `/dev/block/by-name/`.
+6. Save `block device files` as `image files`.
+7. Compress saved `image files` via `parallelised xz` (`pixz`) with highest compression level (`9`), using `all processor cores`.
+8. Verify archive integrity in a `parallelised way` via `xz` and `xargs`.
+9. Generate `BLAKE2` checksum files in a `parallelised way` for `each archive file` via `b2sum` and `xargs`.
+10. Verify `BLAKE2` checksum files in a `parallelised way` for `each archive file` via `b2sum` and `xargs`.
 
-Once the `image files` are being `compressed` at `step four`, the `Android device` can `safely` be disconnected.
+Once the `image files` are being `compressed` at `step seven`, the `Android device` can `safely` be disconnected.
 
 # Verifying archive and file integrity
 The following commands can be used to `verify` the `archive` and `file` integrity manually:
@@ -231,4 +267,4 @@ $ b2sum --check "./2025-06-14T23-37-41+0200/"*.b2
 ```
 
 # Parameters
-There are `no parameters`.
+There are `no parameters`, yet.
