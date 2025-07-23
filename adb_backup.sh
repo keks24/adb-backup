@@ -195,7 +195,7 @@ writeLogFile()
 outputNewline()
 {
     {
-        echo "${date_time_format@P}: ${adb_device_id}:"
+        echo -e "${date_time_format@P}: \e[01;34m${adb_device_id}:\e[0m"
         # wait 1 ms for an ordered output, otherwise subshells may be
         # executed in parallel.
         /bin/sleep 0.001s
