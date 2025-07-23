@@ -220,7 +220,7 @@ The backup process is divided in `seven steps`:
 6. Generate `BLAKE2` checksum files in a `parallelised way` for `each archive file` via `b2sum` and `xargs`.
 7. Verify `BLAKE2` checksum files in a `parallelised way` for `each archive file` via `b2sum` and `xargs`.
 
-Once the `images files` are being `compressed` at `step four`, the `Android device` can `safely` be disconnected.
+Once the `image files` are being `compressed` at `step four`, the `Android device` can `safely` be disconnected.
 
 # Verifying archive and file integrity
 The following commands can be used to `verify` the `archive` and `file` integrity:
