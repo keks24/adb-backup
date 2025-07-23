@@ -40,7 +40,7 @@ createBackupDirectories()
 {
     declare -a subdirectory_array
     local subdirectory
-    local system_information
+    local array_element
 
     /bin/mkdir \
         --parent \
@@ -49,13 +49,14 @@ createBackupDirectories()
 
     subdirectory_array=(
                         $(
-                            for system_information in "${system_information_array[@]%/*}"
+                            for array_element in \
+                                "${system_information_array[@]}" \
+                                "${decrypted_files_array[@]}"
                             do
-                                echo "${system_information}"
+                                echo "${array_element%/*}"
                             done | /bin/sort --unique
                          )
                        )
-
     for subdirectory in "${subdirectory_array[@]}"
     do
         /bin/mkdir --parent "${backup_directory}/${subdirectory}"
@@ -117,7 +118,6 @@ checkCommands
 # define more global variables
 ## "checkCommands" must be executed before this!
 effective_username=$(/usr/bin/id --user --name)
-adb_command_output=$(/usr/bin/adb devices -l)
 available_processors=$(/usr/bin/nproc --all --ignore="${ignore_processor_count}")
 
 # global functions
@@ -327,78 +327,144 @@ deviceFileDirectoryExists()
 
 checkDeviceConnection()
 {
-
-    local device_pattern="${adb_device_id} +?${boot_mode} ${transport_protocol}.*?${product_name} ${model_name} ${device_name}.*?$"
+    local boot_mode="${1}"
+    local no_output="${2}"
+    local device_regex="${adb_device_id} +?${boot_mode} ${transport_protocol}.*?${product_name} ${model_name} ${device_name}.*?$"
+    local adb_command_output=$(/usr/bin/adb devices -l)
 
     if ! /usr/bin/gawk \
-        --assign="device_pattern=${device_pattern}" \
-        'BEGIN{
-            match_found=0;
-        }
+            --assign="device_regex=${device_regex}" \
+            'BEGIN{
+                match_found=0;
+            }
 
-        {
-            adb_command_output=$0;
+            {
+                adb_command_output=$0;
 
-            if(adb_command_output ~ device_pattern)
-                match_found=1;
-        }
+                if(adb_command_output ~ device_regex)
+                    match_found=1;
+            }
 
-        END{
-            if(match_found)
-                # return true
-                exit 0;
+            END{
+                if(match_found)
+                    # return true
+                    exit 0;
 
-            else
-                # return false
-                exit 1;
-        }' <<< "${adb_command_output}"
+                else
+                    # return false
+                    exit 1;
+            }' <<< "${adb_command_output}"
     then
-        outputWarningError "The 'ADB device ID' must be: '${adb_device_id}'." "error"
-        outputWarningError "The 'transport protocol' must be: '${transport_protocol}'." "error"
-        outputWarningError "The 'product name' must be: '${product_name}'." "error"
-        outputWarningError "The 'boot mode' must be: '${boot_mode}'." "error"
-        outputWarningError "The 'device name' must be: '${device_name}'." "error"
-        outputWarningError "The 'model name' must be: '${model_name}'." "error"
-        outputWarningError "" "error"
-        outputWarningError "ADB command output (\"/usr/bin/adb devices -l\"):" "warning"
-        outputWarningError "${adb_command_output}" ""
-        outputWarningError "" "error"
-        outputWarningError "\e[01;33mMake sure to reboot the device to '${boot_mode} mode', in order to create a clean backup of all partitions: '/usr/bin/adb reboot ${boot_mode}'\e[0m" "warning"
-        kill -s "SIGTERM" "${SCRIPT_PID}"
+        # TODO: is there a better solution, than this?
+        if [[ "${no_output}" == "disable_output" ]]
+        then
+            return 1
+        else
+            outputWarningError "The 'ADB device ID' must be: '${adb_device_id}'." "error"
+            outputWarningError "The 'transport protocol' must be: '${transport_protocol}'." "error"
+            outputWarningError "The 'product name' must be: '${product_name}'." "error"
+            outputWarningError "The 'boot mode' must be: '${boot_mode}'." "error"
+            outputWarningError "The 'device name' must be: '${device_name}'." "error"
+            outputWarningError "The 'model name' must be: '${model_name}'." "error"
+            outputWarningError "" "error"
+            outputWarningError "ADB command output (\"/usr/bin/adb devices -l\"):" "warning"
+            outputWarningError "${adb_command_output}" ""
+            outputWarningError "" "warning"
+            outputWarningError "\e[01;33mMake sure to reboot the device to '${boot_mode} mode', in order to create a clean backup of all partitions: '/usr/bin/adb reboot ${boot_mode}'\e[0m" "warning"
+            kill -s "SIGTERM" "${SCRIPT_PID}"
+        fi
     fi
 }
 
 saveSystemInformation()
 {
+    local function_name="${0}"
+    local current_boot_mode="${1}"
     local device_file
+    local decrypted_device_file
 
-    if [[ "${system_information_array[@]}" == *"/proc/partitions"* ]]
-    then
-        for device_file in "${system_information_array[@]}"
-        do
-            if deviceFileDirectoryExists "${device_file}"
+    case "${current_boot_mode}" in
+        "device")
+            for decrypted_device_file in "${decrypted_files_array[@]}"
+            do
+                if deviceFileDirectoryExists "${decrypted_device_file}"
+                then
+                    outputCurrentStep "Saving directory: '${decrypted_device_file}' to '${backup_directory}/${decrypted_device_file}'..."
+                    executeAdbCommand "${adb_device_id}" "pull" "${decrypted_device_file}" "${backup_directory}/${decrypted_device_file}"
+                else
+                    outputWarningError "Could not find file or directory on device: '${decrypted_device_file}'." "error"
+                    kill -s "SIGTERM" "${SCRIPT_PID}"
+                fi
+                outputNewline
+            done
+            ;;
+
+        "recovery")
+            if [[ "${system_information_array[@]}" == *"/proc/partitions"* ]]
             then
-                outputCurrentStep "Saving file: '${device_file}' to '${backup_directory}/${device_file}'..."
-                executeAdbCommand "${adb_device_id}" "pull" "${device_file}" "${backup_directory}/${device_file}"
+                for device_file in "${system_information_array[@]}"
+                do
+                    if deviceFileDirectoryExists "${device_file}"
+                    then
+                        outputCurrentStep "Saving file: '${device_file}' to '${backup_directory}/${device_file}'..."
+                        executeAdbCommand "${adb_device_id}" "pull" "${device_file}" "${backup_directory}/${device_file}"
+                    else
+                        outputWarningError "Could not find file on device: '${device_file}'." "error"
+                        kill -s "SIGTERM" "${SCRIPT_PID}"
+                    fi
+                done
             else
-                outputWarningError "Could not find file on device: '${device_file}'." "error"
+                outputWarningError "Saving the file: '/proc/partitions' is mandatory!" "error"
                 kill -s "SIGTERM" "${SCRIPT_PID}"
             fi
-        done
-    else
-        outputWarningError "Saving the file: '/proc/partitions' is mandatory!" "error"
-        kill -s "SIGTERM" "${SCRIPT_PID}"
-    fi
 
-    outputCurrentStep "Saving partition labels: from '${partition_label_directory}' to '${partition_label_file}'..."
-    if deviceFileDirectoryExists "${partition_label_directory}"
-    then
-        executeAdbCommand "${adb_device_id}" "shell" "ls -l '${partition_label_directory}'" > "${partition_label_file}"
-    else
-        outputWarningError "Couldn not find directory on device: '${partition_label_directory}'." "error"
-        kill -s "SIGTERM" "${SCRIPT_PID}"
-    fi
-    outputNewline
+            outputCurrentStep "Saving partition labels: from '${partition_label_directory}' to '${partition_label_file}'..."
+            if deviceFileDirectoryExists "${partition_label_directory}"
+            then
+                executeAdbCommand "${adb_device_id}" "shell" "ls -l '${partition_label_directory}'" > "${partition_label_file}"
+            else
+                outputWarningError "Could not find directory on device: '${partition_label_directory}'." "error"
+                kill -s "SIGTERM" "${SCRIPT_PID}"
+            fi
+            outputNewline
+            ;;
+
+        *)
+            outputWarningError "${function_name}: Wrong argument: Must be either 'device' or 'recovery'." "error"
+            kill -s "SIGTERM" "${SCRIPT_PID}"
+
+    esac
+}
+
+rebootDevice()
+{
+    local function_name="${0}"
+    local target_boot_mode="${1}"
+
+    case "${target_boot_mode}" in
+        "recovery")
+            outputCurrentStep "Rebooting device to: '${target_boot_mode} mode'..."
+            executeAdbCommand "${adb_device_id}" "reboot" "${target_boot_mode}"
+            outputNewline
+            ;;
+
+        *)
+            outputWarningError "${function_name}: Wrong argument: Must be 'recovery'." "error"
+            kill -s "SIGTERM" "${SCRIPT_PID}"
+    esac
+
+    # check, if device is booted in target boot mode
+    while [[ true ]]
+    do
+        if ! checkDeviceConnection "recovery" "disable_output"
+        then
+            outputCurrentStep "Waiting for device to boot to: '${target_boot_mode} mode'. Please enable 'ADB'..."
+            /bin/sleep 2s
+        else
+            outputNewline
+            break
+        fi
+    done
 }
 
 savePartitionsAsImages()
@@ -412,7 +478,7 @@ savePartitionsAsImages()
     while read -r partition_name
     do
         device_partition_file="${block_device_directory}/${partition_name}"
-        image_file="${backup_directory}/${partition_name}.img"
+        image_file="${backup_directory}/${block_device_directory}/${partition_name}.img"
 
         outputCurrentStep "Saving block device file: '${device_partition_file}' to '${image_file}'..."
         # "adb pull" is much faster than "adb shell 'cat [...]'"
@@ -431,7 +497,7 @@ archiveImages()
 
     while read -r partition_name
     do
-        image_file="${backup_directory}/${partition_name}.img"
+        image_file="${backup_directory}/${block_device_directory}/${partition_name}.img"
         compressed_image_file="${image_file}.xz"
 
         outputCurrentStep "Compressing image file: '${image_file}' to '${compressed_image_file}'..."
@@ -450,7 +516,7 @@ verifyArchiveIntegrity()
 
     while read -r partition_name
     do
-        image_file="${backup_directory}/${partition_name}.img"
+        image_file="${backup_directory}/${block_device_directory}/${partition_name}.img"
         compressed_image_file_array+=("${image_file}.xz")
     done <<< "${partition_name_list}"
 
@@ -469,7 +535,7 @@ generateChecksums()
 
     while read -r partition_name
     do
-        image_file="${backup_directory}/${partition_name}.img"
+        image_file="${backup_directory}/${block_device_directory}/${partition_name}.img"
         compressed_image_file_array+=("${image_file}.xz")
         checksum_file_array+=("${image_file}.xz.b2")
     done <<< "${partition_name_list}"
@@ -489,7 +555,7 @@ verifyArchiveChecksums()
 
     while read -r partition_name
     do
-        image_file="${backup_directory}/${partition_name}.img"
+        image_file="${backup_directory}/${block_device_directory}/${partition_name}.img"
         compressed_image_file="${image_file}.xz"
         checksum_file_array+=("${compressed_image_file}.b2")
     done <<< "${partition_name_list}"
@@ -500,9 +566,15 @@ verifyArchiveChecksums()
 
 main()
 {
-    checkDeviceConnection
+    checkDeviceConnection "device"
 
-    saveSystemInformation
+    saveSystemInformation "device"
+
+    rebootDevice "recovery"
+
+    checkDeviceConnection "recovery"
+
+    saveSystemInformation "recovery"
 
     savePartitionsAsImages
 
