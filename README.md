@@ -223,7 +223,7 @@ The backup process is divided in `seven steps`:
 Once the `image files` are being `compressed` at `step four`, the `Android device` can `safely` be disconnected.
 
 # Verifying archive and file integrity
-The following commands can be used to `verify` the `archive` and `file` integrity:
+The following commands can be used to `verify` the `archive` and `file` integrity manually:
 ```bash
 $ xz --test --verbose "./2025-06-14T23-37-41+0200/"sd*.xz
 $ b2sum --check "./2025-06-14T23-37-41+0200/"*.b2
