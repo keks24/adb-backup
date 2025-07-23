@@ -145,7 +145,7 @@ This will match `all block device files` from:
 * `/dev/block/sdf1` to `/dev/block/sdf999`
 
 ## Adapting array variables
-The variables `system_information_array` and `decrypted_directory_array` can be adapted, in order to backup more files:
+The variables `system_information_array` and `decrypted_files_array` can be adapted, in order to backup more files:
 ```bash
 [...]
 system_information_array=(
@@ -161,9 +161,9 @@ system_information_array=(
                          )
 
 [...]
-decrypted_directory_array=(
-                            "/storage/."
-                          )
+decrypted_files_array=(
+                        "/storage/."
+                      )
 ```
 
 # Creating backups
