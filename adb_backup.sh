@@ -191,7 +191,7 @@ writeLogFile()
 outputNewline()
 {
     {
-        echo "${date_time_format@P}:"
+        echo "${date_time_format@P}: ${adb_device_id}:"
     } > >(writeLogFile "log") 2> >(writeLogFile "error")
 }
 
