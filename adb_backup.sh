@@ -589,6 +589,8 @@ main()
 
     generateChecksums
 
+    # TODO: generate "checksums.b2" for all files in "/storage" here.
+
     # necessary, if the backup is transferred via the network
     verifyArchiveChecksums
 }
