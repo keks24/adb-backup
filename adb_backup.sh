@@ -186,7 +186,7 @@ writeLogFile()
             ;;
 
         *)
-            outputWarningError "${function_name}: Wrong argument: Must be either 'log' or 'error'." "error"
+            outputWarningError "${function_name}: Wrong argument '${log_file}': Must be either 'log' or 'error'." "error"
             kill -s SIGTERM "${SCRIPT_PID}"
     esac
 }
@@ -436,7 +436,7 @@ saveSystemInformation()
             ;;
 
         *)
-            outputWarningError "${function_name}: Wrong argument: Must be either 'device' or 'recovery'." "error"
+            outputWarningError "${function_name}: Wrong argument '${current_boot_mode}': Must be either 'device' or 'recovery'." "error"
             kill -s SIGTERM "${SCRIPT_PID}"
 
     esac
@@ -455,7 +455,7 @@ rebootDevice()
             ;;
 
         *)
-            outputWarningError "${function_name}: Wrong argument: Must be 'recovery'." "error"
+            outputWarningError "${function_name}: Wrong argument '${target_boot_mode}': Must be 'recovery'." "error"
             kill -s SIGTERM "${SCRIPT_PID}"
     esac
 
