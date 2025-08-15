@@ -109,7 +109,7 @@ checkCommands()
             if ! command -v "${current_command}" >/dev/null
             then
                 echo -e "\e[01;31mCould not find command '${current_command}'.\e[0m" >&2
-                kill -s "SIGTERM" "${SCRIPT_PID}"
+                kill -s SIGTERM "${SCRIPT_PID}"
             fi
         done
     # needs to be done manually, due to function dependency conflicts.
@@ -170,7 +170,7 @@ writeLogFile()
                 /usr/bin/tee --append "${log_file}" >&1
             else
                 outputWarningError "The log file: '${log_file}' is either not owned by effective user '${effective_username}', has no 'read' or 'write' permissions." "error"
-                kill -s "SIGTERM" "${SCRIPT_PID}"
+                kill -s SIGTERM "${SCRIPT_PID}"
             fi
             ;;
 
@@ -181,13 +181,13 @@ writeLogFile()
                 /usr/bin/tee --append "${error_log_file}" >&2
             else
                 outputWarningError "The error log file: '${log_file}' is either not owned by effective user '${effective_username}', has no 'read' or 'write' permissions." "error"
-                kill -s "SIGTERM" "${SCRIPT_PID}"
+                kill -s SIGTERM "${SCRIPT_PID}"
             fi
             ;;
 
         *)
             outputWarningError "${function_name}: Wrong argument: Must be either 'log' or 'error'." "error"
-            kill -s "SIGTERM" "${SCRIPT_PID}"
+            kill -s SIGTERM "${SCRIPT_PID}"
     esac
 }
 
@@ -230,7 +230,7 @@ getPartitionList()
         echo "${partition_name_list}"
     else
         outputWarningError "Could not find file: '${partition_file}'" "error"
-        kill -s "SIGTERM" "${SCRIPT_PID}"
+        kill -s SIGTERM "${SCRIPT_PID}"
     fi
 }
 
@@ -377,7 +377,7 @@ checkDeviceConnection()
             outputWarningError "${adb_command_output}" ""
             outputWarningError "" "warning"
             outputWarningError "\e[01;33mMake sure to reboot the device to '${boot_mode} mode', in order to create a clean backup of all partitions: '/usr/bin/adb reboot ${boot_mode}'\e[0m" "warning"
-            kill -s "SIGTERM" "${SCRIPT_PID}"
+            kill -s SIGTERM "${SCRIPT_PID}"
         fi
     fi
 }
@@ -399,7 +399,7 @@ saveSystemInformation()
                     executeAdbCommand "${adb_device_id}" "pull" "${decrypted_device_file}" "${backup_directory}/${decrypted_device_file}"
                 else
                     outputWarningError "Could not find file or directory on device: '${decrypted_device_file}'." "error"
-                    kill -s "SIGTERM" "${SCRIPT_PID}"
+                    kill -s SIGTERM "${SCRIPT_PID}"
                 fi
                 outputNewline
             done
@@ -416,12 +416,12 @@ saveSystemInformation()
                         executeAdbCommand "${adb_device_id}" "pull" "${device_file}" "${backup_directory}/${device_file}"
                     else
                         outputWarningError "Could not find file on device: '${device_file}'." "error"
-                        kill -s "SIGTERM" "${SCRIPT_PID}"
+                        kill -s SIGTERM "${SCRIPT_PID}"
                     fi
                 done
             else
                 outputWarningError "Saving the file: '/proc/partitions' is mandatory!" "error"
-                kill -s "SIGTERM" "${SCRIPT_PID}"
+                kill -s SIGTERM "${SCRIPT_PID}"
             fi
 
             outputCurrentStep "Saving partition labels: from '${partition_label_directory}' to '${partition_label_file}'..."
@@ -430,14 +430,14 @@ saveSystemInformation()
                 executeAdbCommand "${adb_device_id}" "shell" "ls -l '${partition_label_directory}'" > "${partition_label_file}"
             else
                 outputWarningError "Could not find directory on device: '${partition_label_directory}'." "error"
-                kill -s "SIGTERM" "${SCRIPT_PID}"
+                kill -s SIGTERM "${SCRIPT_PID}"
             fi
             outputNewline
             ;;
 
         *)
             outputWarningError "${function_name}: Wrong argument: Must be either 'device' or 'recovery'." "error"
-            kill -s "SIGTERM" "${SCRIPT_PID}"
+            kill -s SIGTERM "${SCRIPT_PID}"
 
     esac
 }
@@ -456,7 +456,7 @@ rebootDevice()
 
         *)
             outputWarningError "${function_name}: Wrong argument: Must be 'recovery'." "error"
-            kill -s "SIGTERM" "${SCRIPT_PID}"
+            kill -s SIGTERM "${SCRIPT_PID}"
     esac
 
     outputCurrentStep "Waiting for device to boot to: '${target_boot_mode} mode'. Please enable 'ADB'..."
