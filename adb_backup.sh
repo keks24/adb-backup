@@ -60,6 +60,7 @@ createBackupDirectories()
                             done | /bin/sort --unique
                          )
                        )
+
     for subdirectory in "${subdirectory_array[@]}"
     do
         /bin/mkdir --parent "${backup_directory}/${subdirectory}"
