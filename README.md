@@ -169,7 +169,7 @@ decrypted_files_array=(
 # Creating backups
 Once everything is configured properly, the `Bash` script `adb_backup.sh` can now be executed:
 ```bash
-$ adb_backup.sh
+$ ./adb_backup.sh
 ```
 
 This will create a `new backup directory` with a prefixed timestamp (`YYYY-MM-DDTHH-MM-SSz_backup`), in which the backup will be `saved`. `Logs` and `errors` of the `entire backup process` are written in it as well:
@@ -262,8 +262,8 @@ Once the `image files` are being `compressed` at `step seven`, the `Android devi
 # Verifying archive and file integrity
 The following commands can be used to `verify` the `archive` and `file` integrity manually:
 ```bash
-$ xz --test --verbose "./2025-06-14T23-37-41+0200/"sd*.xz
-$ b2sum --check "./2025-06-14T23-37-41+0200/"*.b2
+$ xz --test --verbose "./2025-06-14T23-37-41+0200/dev/block/"sd*.xz
+$ b2sum --check "./2025-06-14T23-37-41+0200/dev/block/"*.b2
 ```
 
 # Parameters
