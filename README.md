@@ -262,8 +262,28 @@ Once the `image files` are being `compressed` at `step seven`, the `Android devi
 # Verifying archive and file integrity
 The following commands can be used to `verify` the `archive` and `file` integrity manually:
 ```bash
-$ xz --test --verbose "./2025-06-14T23-37-41+0200/dev/block/"sd*.xz
-$ b2sum --check "./2025-06-14T23-37-41+0200/dev/block/"*.b2
+$ find \
+    "./2025-06-14T19-36-29+0200_backup/dev/block/" \
+    -type f \
+    -name "*.xz" \
+    -print0 \
+    | xargs \
+        --null \
+        --no-run-if-empty \
+        --max-procs="$(nproc --all)" \
+        --max-args="1" \
+        xz --test
+$ find \
+    "./2025-06-14T19-36-29+0200_backup/dev/block/" \
+    -type f \
+    -name "*.b2" \
+    -print0 \
+    | xargs \
+        --null \
+        --no-run-if-empty \
+        --max-procs="$(nproc --all)" \
+        --max-args="1" \
+        b2sum --check --quiet
 ```
 
 # Parameters
