@@ -570,7 +570,7 @@ verifyArchiveChecksums()
 
 main()
 {
-    # TODO: add possibility to set options via "getopts"
+    # TODO: add possibility to set options via "getopt"
     checkDeviceConnection "device"
 
     saveSystemInformation "device"
